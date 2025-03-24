@@ -1,6 +1,5 @@
 # Simple Linear Regression
 
-
 from sklearn.linear_model import LinearRegression
 from sklearn.cross_validation import train_test_split
 import matplotlib.pyplot as plt
@@ -9,7 +8,6 @@ import pandas as pd
 
 
 # Step 1: Data Preprocessing
-
 
 dataset = pd.read_csv('studentscores.csv')
 X = dataset.iloc[:, : 1].values
