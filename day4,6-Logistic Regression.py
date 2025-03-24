@@ -61,4 +61,32 @@ cm = confusion_matrix(y_test, y_pred)
 print("\n混淆矩阵 cm:")
 print(cm)
 
-# Visualization
+# Visualization 
+def plot_decision_boundary(X, y, title):
+    h = 0.01
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                         np.arange(y_min, y_max, h))
+    
+    Z = classifier.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    
+    plt.contourf(xx, yy, Z, alpha=0.75, cmap=plt.cm.RdYlGn)  # 合适的红绿渐变cmap
+    plt.scatter(X[y == 0, 0], X[y == 0, 1], c='red', label=0)
+    plt.scatter(X[y == 1, 0], X[y == 1, 1], c='green', label=1)
+    
+    plt.xlim(xx.min(), xx.max())
+    plt.ylim(yy.min(), yy.max())
+    plt.title(title)
+    plt.xlabel('Age')
+    plt.ylabel('Estimated Salary')
+    plt.legend()
+
+# 绘制训练集可视化
+plot_decision_boundary(X_train, y_train, 'Logistic Regression (Training set)')
+plt.show()
+
+# 绘制测试集可视化
+plot_decision_boundary(X_test, y_test, 'Logistic Regression (Test set)')
+plt.show()
