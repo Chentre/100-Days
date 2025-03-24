@@ -9,7 +9,7 @@ import pandas as pd
 
 # Step 1: Data Preprocessing
 
-dataset = pd.read_csv('100-Days\studentscores.csv')
+dataset = pd.read_csv('100-Days\datasets\studentscores.csv')
 print("\n数据集 dataset:")
 print(dataset)
 
@@ -48,5 +48,5 @@ plt.show()
 
 # Visualizing the test results
 plt.scatter(X_test, Y_test, color='red')  # 绘制测试集散点
-plt.plot(X_test, Y_pred, color='blue')  # 绘制线性模型
+plt.plot(X_test, regressor.predict(X_test), color='blue')  # 绘制线性模型
 plt.show()

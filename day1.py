@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 
 # Step 2: Importing dataset
-dataset = pd.read_csv("100-Days\Data.csv")
+dataset = pd.read_csv("100-Days\datasets\Data.csv")
 X = dataset.iloc[:, :-1].values
 Y = dataset.iloc[:, 3].values
 print("\n导入数据集后 X:")
