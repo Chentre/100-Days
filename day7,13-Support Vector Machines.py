@@ -14,7 +14,7 @@ import pandas as pd
 
 # Importing the dataset
 
-dataset = pd.read_csv('Social_Network_Ads.csv')
+dataset = pd.read_csv('100-Days\datasets\Social_Network_Ads.csv')
 X = dataset.iloc[:, [2, 3]].values
 y = dataset.iloc[:, 4].values
 
@@ -31,6 +31,8 @@ sc = StandardScaler()
 X_train = sc.fit_transform(X_train)
 X_test = sc.fit_transform(X_test)
 
+print(" y_test:")
+print(y_test)
 
 # Fitting SVM to the Training set
 
@@ -40,11 +42,15 @@ classifier.fit(X_train, y_train)
 # Predicting the Test set results
 
 y_pred = classifier.predict(X_test)
+print("\n预测后预测结果 y_pred:")
+print(y_pred)
 
 
 # Making the Confusion Matrix
 
 cm = confusion_matrix(y_test, y_pred)
+print("\n混淆矩阵 cm:")
+print(cm)
 
 
 # Visualising the Training set results
