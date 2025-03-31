@@ -56,15 +56,6 @@ class RNNLM(nn.Module):
 model = RNNLM(vocab_size, embed_size, hidden_size, num_layers).to(device)
 
 
-# 检查是否有多个GPU可用
-if torch.cuda.device_count() > 1:
-    print(f"发现 {torch.cuda.device_count()} 个GPU，使用 DataParallel。")
-    model = nn.DataParallel(model)
-
-# 将模型移动到GPU上
-model.to(torch.device("cuda"))
-
-
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
