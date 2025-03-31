@@ -1,5 +1,5 @@
 # Some part of the code was referenced from below.
-# https://github.com/pytorch/examples/tree/master/word_language_model 
+# https://github.com/pytorch/examples/tree/master/word_language_model
 import torch
 import torch.nn as nn
 import numpy as np
@@ -22,7 +22,9 @@ learning_rate = 0.002
 
 # Load "Penn Treebank" dataset
 corpus = Corpus()
-ids = corpus.get_data('data/train.txt', batch_size)
+ids = corpus.get_data(
+    path='100-Days\\pytorch-tutorial\\tutorials\\02-intermediate\\language_model\\data\\train.txt',
+    batch_size=batch_size)
 vocab_size = len(corpus.dictionary)
 num_batches = ids.size(1) // seq_length
 
@@ -32,49 +34,64 @@ class RNNLM(nn.Module):
     def __init__(self, vocab_size, embed_size, hidden_size, num_layers):
         super(RNNLM, self).__init__()
         self.embed = nn.Embedding(vocab_size, embed_size)
-        self.lstm = nn.LSTM(embed_size, hidden_size, num_layers, batch_first=True)
+        self.lstm = nn.LSTM(embed_size, hidden_size,
+                            num_layers, batch_first=True)
         self.linear = nn.Linear(hidden_size, vocab_size)
-        
+
     def forward(self, x, h):
         # Embed word ids to vectors
         x = self.embed(x)
-        
+
         # Forward propagate LSTM
         out, (h, c) = self.lstm(x, h)
-        
+
         # Reshape output to (batch_size*sequence_length, hidden_size)
         out = out.reshape(out.size(0)*out.size(1), out.size(2))
-        
+
         # Decode hidden states of all time steps
         out = self.linear(out)
         return out, (h, c)
 
+
 model = RNNLM(vocab_size, embed_size, hidden_size, num_layers).to(device)
+
+
+# 检查是否有多个GPU可用
+if torch.cuda.device_count() > 1:
+    print(f"发现 {torch.cuda.device_count()} 个GPU，使用 DataParallel。")
+    model = nn.DataParallel(model)
+
+# 将模型移动到GPU上
+model.to(torch.device("cuda"))
+
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 # Truncated backpropagation
+
+
 def detach(states):
-    return [state.detach() for state in states] 
+    return [state.detach() for state in states]
+
 
 # Train the model
 for epoch in range(num_epochs):
     # Set initial hidden and cell states
     states = (torch.zeros(num_layers, batch_size, hidden_size).to(device),
               torch.zeros(num_layers, batch_size, hidden_size).to(device))
-    
+
     for i in range(0, ids.size(1) - seq_length, seq_length):
         # Get mini-batch inputs and targets
         inputs = ids[:, i:i+seq_length].to(device)
         targets = ids[:, (i+1):(i+1)+seq_length].to(device)
-        
+
         # Forward pass
         states = detach(states)
         outputs, states = model(inputs, states)
         loss = criterion(outputs, targets.reshape(-1))
-        
+
         # Backward and optimize
         optimizer.zero_grad()
         loss.backward()
@@ -83,8 +100,8 @@ for epoch in range(num_epochs):
 
         step = (i+1) // seq_length
         if step % 100 == 0:
-            print ('Epoch [{}/{}], Step[{}/{}], Loss: {:.4f}, Perplexity: {:5.2f}'
-                   .format(epoch+1, num_epochs, step, num_batches, loss.item(), np.exp(loss.item())))
+            print('Epoch [{}/{}], Step[{}/{}], Loss: {:.4f}, Perplexity: {:5.2f}'
+                  .format(epoch+1, num_epochs, step, num_batches, loss.item(), np.exp(loss.item())))
 
 # Test the model
 with torch.no_grad():
@@ -98,7 +115,7 @@ with torch.no_grad():
         input = torch.multinomial(prob, num_samples=1).unsqueeze(1).to(device)
 
         for i in range(num_samples):
-            # Forward propagate RNN 
+            # Forward propagate RNN
             output, state = model(input, state)
 
             # Sample a word id
@@ -114,7 +131,8 @@ with torch.no_grad():
             f.write(word)
 
             if (i+1) % 100 == 0:
-                print('Sampled [{}/{}] words and save to {}'.format(i+1, num_samples, 'sample.txt'))
+                print(
+                    'Sampled [{}/{}] words and save to {}'.format(i+1, num_samples, 'sample.txt'))
 
 # Save the model checkpoints
 torch.save(model.state_dict(), 'model.ckpt')
